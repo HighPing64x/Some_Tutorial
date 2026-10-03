@@ -116,6 +116,36 @@ function removeDuplicateTitleHeading(body, title) {
   return lines.join("\n");
 }
 
+function preserveLineBreaks(markdown) {
+  const lines = markdown.split(/\r?\n/);
+  let fence;
+
+  return lines.map((line, index) => {
+    const fenceMatch = line.match(/^ {0,3}(`{3,}|~{3,})/);
+    if (fence) {
+      if (
+        fenceMatch
+        && fenceMatch[1][0] === fence.character
+        && fenceMatch[1].length >= fence.length
+        && /^[`~]*[\t ]*$/.test(line.slice(fenceMatch[0].length))
+      ) {
+        fence = undefined;
+      }
+      return line;
+    }
+
+    if (fenceMatch) {
+      fence = { character: fenceMatch[1][0], length: fenceMatch[1].length };
+      return line;
+    }
+
+    if (line.trim() && lines[index + 1]?.trim()) {
+      return `${line.trimEnd()}  `;
+    }
+    return line;
+  }).join("\n");
+}
+
 function isInside(parent, child) {
   const relative = path.relative(parent, child);
   return relative !== ".." && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative);
@@ -204,7 +234,7 @@ async function main() {
     throw new Error(`目标文件已存在但标题不同，不会覆盖：${path.relative(projectRoot, destinationPath)}`);
   }
 
-  body = removeDuplicateTitleHeading(body, title);
+  body = preserveLineBreaks(removeDuplicateTitleHeading(body, title));
   const description = readFrontmatterField(frontmatter, "description")
     || (isUpdate ? readFrontmatterField(existingFrontmatter, "description") : undefined)
     || inferDescription(body, title);
