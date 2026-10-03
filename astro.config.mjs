@@ -6,5 +6,6 @@ const isUserSite = repository === `${owner}.github.io`;
 
 export default defineConfig({
   output: "static",
+  devToolbar: { enabled: false },
   base: process.env.GITHUB_ACTIONS && repository && !isUserSite ? `/${repository}` : "/",
 });

@@ -193,7 +193,7 @@ async function main() {
   }
 
   const sourceDirectory = path.dirname(sourcePath);
-  const source = await readFile(sourcePath, "utf8");
+  const source = (await readFile(sourcePath, "utf8")).replaceAll("’", "\u0060");
   const frontmatterMatch = source.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/);
   let frontmatter = frontmatterMatch?.[1] ?? "";
   let body = frontmatterMatch ? source.slice(frontmatterMatch[0].length) : source;
