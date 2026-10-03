@@ -1,0 +1,112 @@
+---
+import { getCollection } from "astro:content";
+import SiteLayout from "../layouts/SiteLayout.astro";
+
+const base = import.meta.env.BASE_URL.endsWith("/")
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
+const articles = (await getCollection("blog", ({ data }) => !data.draft)).sort((left, right) => {
+  const pinDifference = Number(right.data.pinned) - Number(left.data.pinned);
+  return pinDifference || right.data.pubDate.valueOf() - left.data.pubDate.valueOf();
+});
+const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+---
+
+<SiteLayout>
+  <section class="intro">
+    <div class="intro-copy">
+      <p class="eyebrow"><span></span> 新手教程 · 从这里开始</p>
+      <h1>一些<br /><em>新手指南</em></h1>
+    </div>
+  </section>
+
+  <section class="article-section" id="articles">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">THE NOTES</p>
+        <h2>教程文章</h2>
+      </div>
+      <span class="article-count">{String(articles.length).padStart(2, "0")} 篇</span>
+    </div>
+
+    {articles.length > 0 ? (
+      <div class="article-list">
+        {articles.map((article, index) => (
+          <article class="article-row" data-pagefind-ignore>
+            <span class="row-number">{String(index + 1).padStart(2, "0")}</span>
+            <div class="row-content">
+              <div class="row-meta">
+                <span class="category-label">{article.data.category}</span>
+                {article.data.pinned && <span class="pin-label">置顶</span>}
+                <time datetime={article.data.pubDate.toISOString()}>{dateFormatter.format(article.data.pubDate)}</time>
+              </div>
+              <h3><a href={`${base}blog/${article.id}/`}>{article.data.title}</a></h3>
+              <p>{article.data.description}</p>
+            </div>
+            <a class="row-arrow" href={`${base}blog/${article.id}/`} aria-label={`阅读：${article.data.title}`}>
+              <span aria-hidden="true">↗</span>
+            </a>
+          </article>
+        ))}
+      </div>
+    ) : (
+      <div class="empty-state">
+        <span class="empty-mark" aria-hidden="true">+</span>
+        <p>还没有教程文章</p>
+        <span>在 <code>src/content/blog/</code> 新建 Markdown 文件即可开始。</span>
+      </div>
+    )}
+  </section>
+</SiteLayout>
+
+<style>
+  .intro {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: center;
+    min-height: 270px;
+    padding: 42px 4px 38px;
+    border-bottom: 1px solid var(--line);
+  }
+  .intro-copy { padding-left: 23px; }
+  .eyebrow { display: flex; align-items: center; gap: 9px; margin: 0; color: var(--green); font-size: 11px; font-weight: 700; letter-spacing: 0.08em; }
+  .eyebrow > span { width: 7px; height: 7px; border-radius: 50%; background: var(--coral); }
+  h1 { margin: 22px 0 15px; font-family: var(--serif); font-size: 58px; font-weight: 600; line-height: 1.28; }
+  h1 em { color: var(--green); font-style: normal; }
+  .intro-note { margin: 0; color: var(--muted); font-size: 15px; }
+  .article-section { padding: 39px 23px 64px; }
+  .section-heading { display: flex; align-items: end; justify-content: space-between; padding-bottom: 17px; border-bottom: 1px solid #aebcb4; }
+  .section-heading .eyebrow { color: #85918b; font-family: Georgia, serif; font-size: 10px; }
+  .section-heading h2 { margin: 7px 0 0; font-family: var(--serif); font-size: 23px; font-weight: 600; }
+  .article-count { padding-bottom: 3px; color: var(--muted); font-size: 12px; }
+  .article-row { display: grid; grid-template-columns: 54px 1fr 35px; gap: 13px; align-items: center; min-height: 130px; border-bottom: 1px solid var(--line); }
+  .row-number { align-self: start; padding-top: 28px; color: #a0aaa4; font-family: Georgia, serif; font-size: 12px; }
+  .row-content { padding: 21px 0; }
+  .row-meta { display: flex; align-items: center; gap: 12px; color: #85918b; font-size: 11px; }
+  .category-label { padding: 4px 7px; border-radius: 2px; color: var(--green-dark); background: #e3eee7; }
+  .pin-label { color: var(--coral); font-weight: 600; }
+  .row-content h3 { margin: 10px 0 5px; font-family: var(--serif); font-size: 19px; font-weight: 600; }
+  .row-content h3 a:hover { color: var(--green); }
+  .row-content > p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
+  .row-arrow { display: grid; place-items: center; width: 31px; aspect-ratio: 1; border: 1px solid var(--line); border-radius: 50%; color: var(--green); font-size: 16px; transition: background 140ms ease, color 140ms ease; }
+  .row-arrow:hover { color: white; background: var(--green); }
+  .empty-state { display: grid; justify-items: center; gap: 9px; padding: 55px 16px; color: var(--muted); text-align: center; }
+  .empty-mark { display: grid; place-items: center; width: 37px; aspect-ratio: 1; border: 1px solid #cdd8d0; border-radius: 50%; color: var(--green); font-size: 20px; }
+  .empty-state p { margin: 2px 0 0; color: var(--ink); font-family: var(--serif); font-size: 17px; }
+  .empty-state > span:last-child { font-size: 12px; }
+  .empty-state code { color: var(--green-dark); font-size: 11px; }
+  @media (max-width: 700px) {
+    .intro { min-height: 0; padding: 37px 0 33px; }
+    .intro-copy { padding-left: 6px; }
+    h1 { margin-top: 17px; font-size: 48px; }
+    .article-section { padding: 31px 0 45px; }
+    .article-row { grid-template-columns: 31px 1fr 29px; gap: 8px; min-height: 123px; }
+    .row-content h3 { font-size: 17px; }
+    .row-content > p { font-size: 12px; }
+    .row-arrow { width: 28px; }
+  }
+</style>

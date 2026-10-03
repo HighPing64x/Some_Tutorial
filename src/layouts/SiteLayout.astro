@@ -1,0 +1,273 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "一些新手指南",
+  description = "写给刚刚开始使用电脑的你。",
+} = Astro.props;
+const base = import.meta.env.BASE_URL.endsWith("/")
+  ? import.meta.env.BASE_URL
+  : `${import.meta.env.BASE_URL}/`;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#f5f7f2" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;600;700&display=swap" rel="stylesheet" />
+    <title>{title} · 一些新手指南</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href={base} aria-label="一些新手指南首页">
+        <span class="brand-mark" aria-hidden="true">?</span>
+        <span>一些新手指南</span>
+      </a>
+      <nav class="main-nav" aria-label="主导航">
+        <a href={base} aria-current={Astro.url.pathname === base ? "page" : undefined}>首页</a>
+        <a href={`${base}#articles`}>文章</a>
+      </nav>
+      <form class="search-form" id="site-search" role="search" data-base={base}>
+        <label class="sr-only" for="search-query">搜索教程</label>
+        <span class="search-icon" aria-hidden="true"></span>
+        <input id="search-query" name="q" type="search" placeholder="搜索教程" autocomplete="off" />
+        <kbd>↵</kbd>
+        <div class="search-results" id="search-results" aria-live="polite" hidden></div>
+      </form>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <a class="brand brand-small" href={base}>
+        <span class="brand-mark" aria-hidden="true">?</span>
+        <span>一些新手指南</span>
+      </a>
+      <span>——HighPing</span>
+    </footer>
+
+    <script is:inline>
+      const form = document.querySelector("#site-search");
+      const input = document.querySelector("#search-query");
+      const results = document.querySelector("#search-results");
+      const base = form?.dataset.base ?? "/";
+      let pagefind;
+      let timer;
+
+      async function search(query) {
+        if (!form || !input || !results) return;
+        results.replaceChildren();
+        if (!query.trim()) {
+          results.hidden = true;
+          return;
+        }
+
+        results.hidden = false;
+        results.textContent = "正在搜索…";
+        try {
+          pagefind ??= await import(new URL(`${base}pagefind/pagefind.js`, document.baseURI).href);
+          const response = await pagefind.search(query);
+          const items = await Promise.all(response.results.slice(0, 6).map((item) => item.data()));
+          results.replaceChildren();
+          if (items.length === 0) {
+            results.textContent = "没有找到相关文章";
+            return;
+          }
+
+          for (const item of items) {
+            const link = document.createElement("a");
+            const resultPath = item.url.startsWith(base)
+              ? item.url
+              : `${base.replace(/\/$/, "")}${item.url.startsWith("/") ? item.url : `/${item.url}`}`;
+            link.href = resultPath;
+            const title = document.createElement("strong");
+            title.textContent = item.meta.title ?? "未命名文章";
+            const excerpt = document.createElement("span");
+            excerpt.innerHTML = item.excerpt;
+            link.append(title, excerpt);
+            results.append(link);
+          }
+        } catch (error) {
+          console.error(error);
+          results.textContent = "搜索暂不可用，请稍后再试";
+        }
+      }
+
+      input?.addEventListener("input", () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => void search(input.value), 180);
+      });
+      form?.addEventListener("submit", (event) => {
+        event.preventDefault();
+        if (input) void search(input.value);
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "/" && !(event.target instanceof HTMLInputElement)) {
+          event.preventDefault();
+          input?.focus();
+        }
+        if (event.key === "Escape" && input && results) {
+          input.value = "";
+          results.hidden = true;
+          input.blur();
+        }
+      });
+    </script>
+
+    <style is:global>
+      :root {
+        font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+        color: #202a28;
+        background: #f5f7f2;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        --ink: #202a28;
+        --muted: #687572;
+        --line: #dce4de;
+        --paper: #fffefa;
+        --green: #14786b;
+        --green-dark: #105c53;
+        --coral: #d9674c;
+        --serif: "Noto Serif SC", "Songti SC", serif;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-width: 320px;
+        background-color: #f5f7f2;
+        background-image: radial-gradient(#d6e1da 0.65px, transparent 0.65px);
+        background-size: 17px 17px;
+      }
+      a { color: inherit; text-decoration: none; }
+      button, input { font: inherit; }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+      .site-header {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 42px;
+        min-height: 82px;
+        max-width: 1160px;
+        margin: 0 auto;
+        padding: 0 32px;
+        border-bottom: 1px solid var(--line);
+      }
+      .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; white-space: nowrap; }
+      .brand-mark {
+        display: grid;
+        place-items: center;
+        width: 31px;
+        aspect-ratio: 1;
+        border-radius: 9px 9px 9px 2px;
+        color: white;
+        background: var(--green);
+        font-family: var(--serif);
+        font-size: 20px;
+      }
+      .main-nav { display: flex; align-items: center; gap: 27px; color: #52615d; font-size: 14px; }
+      .main-nav a:hover, .main-nav a[aria-current="page"] { color: var(--green); }
+      .search-form {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: min(310px, 35vw);
+        height: 42px;
+        margin-left: auto;
+        padding: 0 11px;
+        border: 1px solid #d4ded7;
+        border-radius: 4px;
+        background: rgba(255, 254, 250, 0.8);
+      }
+      .search-form:focus-within { border-color: var(--green); box-shadow: 0 0 0 3px #14786b16; }
+      .search-icon { width: 14px; height: 14px; border: 1.7px solid #61716c; border-radius: 50%; position: relative; flex: 0 0 auto; }
+      .search-icon::after { content: ""; position: absolute; width: 6px; height: 1.7px; right: -4px; bottom: -2px; background: #61716c; transform: rotate(48deg); }
+      .search-form input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; font-size: 13px; }
+      .search-form input::placeholder { color: #87928e; }
+      .search-form kbd { color: #83908a; font-size: 11px; }
+      .search-results {
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 0;
+        left: 0;
+        max-height: 360px;
+        overflow: auto;
+        padding: 7px;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        background: var(--paper);
+        box-shadow: 0 12px 30px #20312c18;
+        font-size: 13px;
+      }
+      .search-results[hidden] { display: none; }
+      .search-results > a { display: grid; gap: 5px; padding: 11px; border-radius: 3px; }
+      .search-results > a:hover { background: #edf4ef; }
+      .search-results > a span { color: var(--muted); font-size: 12px; line-height: 1.6; }
+      .search-results mark { color: var(--green-dark); background: #d8eee4; }
+      main { max-width: 1160px; min-height: calc(100vh - 160px); margin: 0 auto; padding: 0 32px; }
+      .site-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        max-width: 1160px;
+        min-height: 78px;
+        margin: 0 auto;
+        padding: 0 32px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .brand-small { color: var(--ink); font-size: 12px; }
+      .brand-small .brand-mark { width: 24px; border-radius: 7px 7px 7px 2px; font-size: 16px; }
+      .article-page { max-width: 760px; margin: 0 auto; padding: 48px 0 80px; }
+      .article-back { display: inline-flex; gap: 8px; align-items: center; color: var(--green); font-size: 13px; }
+      .article-back:hover { color: var(--coral); }
+      .article-header { padding: 34px 0 28px; border-bottom: 1px solid var(--line); }
+      .article-category { color: var(--green); font-size: 12px; font-weight: 700; }
+      .article-title { margin: 13px 0 14px; font-family: var(--serif); font-size: 40px; line-height: 1.4; }
+      .article-description { margin: 0; color: var(--muted); line-height: 1.8; }
+      .article-date { display: block; margin-top: 18px; color: var(--muted); font-size: 12px; }
+      .prose { padding-top: 24px; font-size: 16px; line-height: 1.95; overflow-wrap: anywhere; }
+      .prose h2, .prose h3 { margin-top: 1.8em; font-family: var(--serif); line-height: 1.5; }
+      .prose a { color: var(--green); text-decoration: underline; text-underline-offset: 3px; }
+      .prose img { display: block; max-width: 100%; height: auto; margin: 28px auto; border-radius: 3px; }
+      .prose pre { overflow-x: auto; padding: 18px; border: 1px solid var(--line); border-radius: 4px; background: #edf2ed; font-size: 13px; line-height: 1.7; }
+      .prose code { font-family: Consolas, "Cascadia Code", monospace; }
+      .prose :not(pre) > code { padding: 2px 5px; border-radius: 3px; color: #a14835; background: #f7e9e3; font-size: 0.9em; }
+      .prose blockquote { margin: 24px 0; padding: 3px 0 3px 18px; border-left: 3px solid var(--coral); color: var(--muted); }
+      @media (max-width: 700px) {
+        .site-header { min-height: 72px; flex-wrap: wrap; gap: 14px 20px; padding: 13px 20px; }
+        .brand { font-size: 14px; }
+        .main-nav { gap: 16px; margin-left: auto; font-size: 13px; }
+        .search-form { order: 3; width: 100%; margin-left: 0; }
+        main { min-height: calc(100vh - 184px); padding: 0 20px; }
+        .site-footer { gap: 12px; padding: 0 20px; }
+        .article-page { padding: 32px 0 56px; }
+        .article-title { font-size: 31px; }
+        .prose { font-size: 15px; }
+      }
+    </style>
+  </body>
+</html>
