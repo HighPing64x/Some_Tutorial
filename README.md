@@ -18,7 +18,31 @@ npm run build
 npm run preview
 ```
 
-## 添加文章
+## 导入文章
+
+可以继续在被忽略的 `temp/` 里写草稿，不需要手动搬图片。确保 Markdown 和图片都在同一个文章目录中，图片使用相对路径，例如 `![截图](image/1/screen.png)`。
+
+先预演，确认目标文件和图片列表：
+
+```sh
+npm run article:import:preview -- "temp/文章目录/1.md"
+```
+
+确认后去掉 `--dry-run` 正式导入：
+
+```sh
+npm run article:import -- "temp/文章目录/1.md"
+```
+
+命令会读取一级标题作为文章标题、生成摘要和日期、复制本地图片并改写图片链接；原始草稿不会被修改。生成后可编辑 frontmatter 中的分类、网址文件名、`pinned` 置顶选项和 `draft` 草稿选项。
+
+再次导入同标题文章会更新已有文章并保留原网址，不会新增副本。如果历史上已经有多个同标题文件，预演会提示路径；用 `node scripts/import-article.mjs --slug 原有网址名 "temp/文章目录/1.md"` 指定要保留的网址。
+
+首页顺序为置顶优先、发布日期从新到旧；同一发布日期按标题固定排序。需要控制同一天内的先后时，可以在 `pubDate` 中填写时间，例如 `2026-10-03T18:00:00+08:00`。
+
+导入后运行 `npm run dev` 预览。需要发布时，将生成的 `src/content/blog/` 文章及其 `assets/` 图片提交并推送到 `main`，GitHub Actions 会自动更新网站。
+
+## 手动添加文章
 
 在 `src/content/blog/` 新建 `.md` 文件，开头填写：
 

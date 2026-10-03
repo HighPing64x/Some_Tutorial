@@ -4,6 +4,8 @@
   "version": "0.1.0",
   "scripts": {
     "dev": "astro dev",
+    "article:import": "node scripts/import-article.mjs",
+    "article:import:preview": "node scripts/import-article.mjs --dry-run",
     "build": "astro build && pagefind --site dist",
     "preview": "astro preview"
   },

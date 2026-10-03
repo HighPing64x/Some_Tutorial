@@ -5,8 +5,8 @@ interface Props {
 }
 
 const {
-  title = "一些新手指南",
-  description = "写给刚刚开始使用电脑的你。",
+  title = "新手指南",
+  description = "适用于某些LowIQ。",
 } = Astro.props;
 const base = import.meta.env.BASE_URL.endsWith("/")
   ? import.meta.env.BASE_URL
@@ -27,7 +27,7 @@ const base = import.meta.env.BASE_URL.endsWith("/")
   </head>
   <body>
     <header class="site-header">
-      <a class="brand" href={base} aria-label="一些新手指南首页">
+      <a class="brand" href={base} aria-label="指南首页">
         <span class="brand-mark" aria-hidden="true">?</span>
         <span>一些新手指南</span>
       </a>

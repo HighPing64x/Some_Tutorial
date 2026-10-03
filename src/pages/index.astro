@@ -7,7 +7,9 @@ const base = import.meta.env.BASE_URL.endsWith("/")
   : `${import.meta.env.BASE_URL}/`;
 const articles = (await getCollection("blog", ({ data }) => !data.draft)).sort((left, right) => {
   const pinDifference = Number(right.data.pinned) - Number(left.data.pinned);
-  return pinDifference || right.data.pubDate.valueOf() - left.data.pubDate.valueOf();
+  const dateDifference = right.data.pubDate.valueOf() - left.data.pubDate.valueOf();
+  const titleOrder = left.data.title.localeCompare(right.data.title, "zh-CN");
+  return pinDifference || dateDifference || titleOrder || left.id.localeCompare(right.id);
 });
 const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
   year: "numeric",
