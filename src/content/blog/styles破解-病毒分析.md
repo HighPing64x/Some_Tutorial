@@ -1,8 +1,8 @@
 ---
 title: "“Styles破解”病毒分析"
-description: "| 属性 | 值 | | --- | --- | | 文件名 | 末日客户端启动器1.7.exe(名称多样) | | 真实投递名 | 汉化器.exe（见3.2） | | 大小 | 10,611,200 字节（10.12 MB） | | SHA-256 | E2EAF879AA69579CED0DC78C33E5781F933E25918838A50BA..."
+description: "通过静态分析与沙箱报告，梳理病毒的持久化方式与磁盘破坏行为。"
 pubDate: 2026-10-04
-category: "新手教程"
+category: "病毒分析"
 pinned: false
 draft: false
 ---

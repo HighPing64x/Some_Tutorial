@@ -20,15 +20,16 @@ for (let index = 0; index < args.length; index += 1) {
     options.pinned = true;
   } else if (argument === "--draft") {
     options.draft = true;
-  } else if (["--slug", "--category"].includes(argument)) {
+  } else if (["--slug", "--category", "--article-description"].includes(argument)) {
     const value = args[index + 1];
     if (!value || value.startsWith("--")) {
       throw new Error(`${argument} 后需要一个值。`);
     }
-    options[argument.slice(2)] = value;
+    const optionName = argument === "--article-description" ? "description" : argument.slice(2);
+    options[optionName] = value;
     index += 1;
   } else if (argument === "--help") {
-    console.log('用法: npm run article:import -- "temp/文章目录/文章.md" [--dry-run] [--slug slug] [--category 分类] [--pinned] [--draft]');
+    console.log('用法: npm run article:import -- "temp/文章目录/文章.md" [--dry-run] [--slug slug] [--category 分类] [--article-description 摘要] [--pinned] [--draft]');
     process.exit(0);
   } else if (argument.startsWith("--")) {
     throw new Error(`不支持的参数：${argument}`);
@@ -235,7 +236,8 @@ async function main() {
   }
 
   body = preserveLineBreaks(removeDuplicateTitleHeading(body, title));
-  const description = readFrontmatterField(frontmatter, "description")
+  const description = options.description
+    || readFrontmatterField(frontmatter, "description")
     || (isUpdate ? readFrontmatterField(existingFrontmatter, "description") : undefined)
     || inferDescription(body, title);
   const pubDate = readFrontmatterField(frontmatter, "pubDate")

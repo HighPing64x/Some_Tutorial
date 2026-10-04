@@ -40,6 +40,12 @@ Windows PowerShell 中，如果目录名包含中文弯引号 `“”`，请用 
 npm run article:import -- 'temp/004 “Styles破解”病毒解析/1.md'
 ```
 
+需要手动设置简短摘要时，直接运行导入脚本：
+
+```powershell
+node scripts/import-article.mjs --article-description "简短摘要" 'temp/文章目录/1.md'
+```
+
 命令会读取一级标题作为文章标题、生成摘要和日期、复制本地图片并改写图片链接；段内单回车会自动转换为 Markdown 硬换行，`’` 会映射为反引号，空行和代码围栏保持不变。原始草稿不会被修改。生成后可编辑 frontmatter 中的分类、网址文件名、`pinned` 置顶选项和 `draft` 草稿选项。
 
 再次导入同标题文章会更新已有文章并保留原网址，不会新增副本。如果历史上已经有多个同标题文件，预演会提示路径；用 `node scripts/import-article.mjs --slug 原有网址名 "temp/文章目录/1.md"` 指定要保留的网址。
