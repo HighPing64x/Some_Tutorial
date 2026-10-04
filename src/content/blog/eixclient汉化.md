@@ -52,7 +52,9 @@ draft: false
 ![1791031117551](assets/eixclient汉化/image/1/1791031117551.png)  
 而且本客户端的模块**并非自动扫描注册**，而是在`ModuleManager.initModules()`里**固定**写了一个73个类的列表，但是jar里实际存在**79个**带`@ModuleInfo`注解的模块类。但出于善意，我也顺便翻译了那六个没被注册的模块（实际上不会显示也不会被加载），分别为：AutoHeal、NoFall、Speed、GrimSpeed、Particles、Test。
 
-本客户端更新换base的速度之惊人令人难以想象。但是我准备开始翻译(18:58)到我翻译完成(21:27)的两个半小时内，本客户端已经从6.5迅速更新到了8.0，因此本文档仅用于参考，不代表其为最新翻译。
+本客户端更新的速度之惊人令人难以想象。但是我准备开始翻译(18:58)到我翻译完成(21:27)的两个半小时内，本客户端已经从6.5迅速更新到了8.0，因此本文档**仅用于参考，不代表其为最新翻译**。  
+![1791109746195](assets/eixclient汉化/image/1/1791109746195.png)  
+(来自2026/10/4 18:26，本客户端已经更新到了9.3版本。令人蒙古的是**本客户端从6.5到9.3一共只更新了六个配置项**，而且仅是DynamicIsland灵动岛、WaterMark水印、Scaffold自动搭路。)
 
 #### 3.1.1 AimAssist
 
@@ -266,10 +268,11 @@ Snap：吸附。转头时吸附到方块正中心。
 Telly Ticks：Telly的间隔tick数。  
 Normal：普通模式。  
 Click：点击模式。靠模拟点击来放置方块。  
-Human Extra Place：拟人额外放置。模仿真人会多放一个方块的行为。  
-Human Up Place：拟人向上放置。模仿真人向上搭的行为。  
-Server Side Rotation：仅服务端转头，客户端本地看不到。  
-Place Delay：放置延迟。  
+> Human Extra Place：拟人额外放置。模仿真人会多放一个方块的行为。  
+> Human Up Place：拟人向上放置。模仿真人向上搭的行为。  
+> Server Side Rotation：仅服务端转头，客户端本地看不到。  
+> Place Delay：放置延迟。  
+> （以上四项在新版本中被删除）  
 Rotation Speed：转头速度。  
 Rotation Back Speed：回正转头速度。放完之后把视角转回正前方的速度。  
 SafeWalk：联动安全行走模块。  
@@ -351,6 +354,8 @@ No Player Only：不显示玩家（？）。
 #### 3.3.9 DynamicIsland
 
 （无功能介绍）  
+- Island：灵动岛样式（圆角矩形）。**9.3新增**。  
+- Capsule：胶囊样式。**9.3新增**。  
 即屏幕顶部的灵动岛，用来显示击杀播报、歌词、FPS、玩家数等。  
 Bloom：泛光。  
 Blur：模糊。  
@@ -573,7 +578,9 @@ Animation Speed：动画速度。
 
 （无功能介绍）  
 即屏幕角落的客户端水印。  
-Sync Color：颜色同步。  
+Hue Shift：色相偏移。**9.3新增**，取代了6.5的`Sync Color`。  
+Solid White：纯白。**9.3新增**。  
+Sync Color：颜色同步。（已被删除）  
 Speed：速度。  
 Position：位置。  
 Alpha：不透明度。
