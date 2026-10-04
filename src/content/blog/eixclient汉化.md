@@ -28,9 +28,9 @@ draft: false
 
 ## 2.进入游戏
 
-在加载游戏时会出现奇异日语，而且如果声音开的比较大的话会比较响。建议进入前先降低音量。  
+在加载游戏时会出现奇异日语，而且如果声音开的比较大的话会比较响。建议**进入前先降低音量**。  
 进入游戏后，客户设置端界面需要修改键位才能打开（我自己测试时发现启动键位并不是右Shift），且本客户端不支持.help唤出指令索引界面。  
-我们需要先在聊天框中打出`.bind clickgui m`。其中m可以是其他任何按键（似乎不支持rshift和rightshift这种打法，但是支持insert、fN、tab等其他按键）  
+我们可以先在聊天框中打出`.bind clickgui m`。其中m可以是其他任何按键（似乎不支持rshift和rightshift这种打法，但是支持insert、fN、tab等其他按键）  
 接下来可以按下相对应的按键（如m）打开客户设置端界面。  
 ![1791026640209](assets/eixclient汉化/image/1/1791026640209.png)  
 这是界面的样子。如果不会英语可以点击眼睛图标的"Render"，并找到ClickGUI项，右键，其中有一个Language语言选项，可以调节成中文。  
@@ -48,7 +48,7 @@ draft: false
 
 本客户端的所有功能文本全部硬编码在.class里，因此对汉化造成了一定的困难。  
 虽然有"中英切换"那个功能，可惜中文只翻译了模块名（机器翻译导致其英文生僻且诡异），模块说明和全部设置项都还是英文。  
-而且你们谁能绷住这个中文翻译为"严峻的嘻嘻哈哈"的GrimSpeed  
+而且你们谁能绷住这个中文翻译为"严峻的嘻嘻哈哈"的GrimLowHop  
 ![1791031117551](assets/eixclient汉化/image/1/1791031117551.png)  
 而且本客户端的模块**并非自动扫描注册**，而是在`ModuleManager.initModules()`里**固定**写了一个73个类的列表，但是jar里实际存在**79个**带`@ModuleInfo`注解的模块类。但出于善意，我也顺便翻译了那六个没被注册的模块（实际上不会显示也不会被加载），分别为：AutoHeal、NoFall、Speed、GrimSpeed、Particles、Test。
 
@@ -776,4 +776,8 @@ Mode：模式。
 Color：按颜色区分。  
 Scoreboard：按计分板区分。
 
-（剩下的没打完，明天继续翻译）
+## 4.关于混淆棍母的吐槽  
+![Recaf](assets/eixclient汉化/image/1/1791110667216.png)  
+![Recaf](assets/eixclient汉化/image/1/1791110668964.png)  
+Best ProGuard user.
+
