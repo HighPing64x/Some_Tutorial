@@ -33,7 +33,7 @@ for (let index = 0; index < args.length; index += 1) {
   } else if (argument.startsWith("--")) {
     throw new Error(`不支持的参数：${argument}`);
   } else if (sourceArgument) {
-    throw new Error("一次只能导入一篇 Markdown 文章。");
+    throw new Error("一次只能导入一篇 Markdown 文章。若路径含中文弯引号，请在 PowerShell 中用 ASCII 单引号括住完整路径。");
   } else {
     sourceArgument = argument;
   }
