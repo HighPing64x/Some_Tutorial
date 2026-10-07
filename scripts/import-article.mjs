@@ -20,16 +20,18 @@ for (let index = 0; index < args.length; index += 1) {
     options.pinned = true;
   } else if (argument === "--draft") {
     options.draft = true;
-  } else if (["--slug", "--category", "--article-description"].includes(argument)) {
+  } else if (["--slug", "--update-slug", "--category", "--article-description"].includes(argument)) {
     const value = args[index + 1];
     if (!value || value.startsWith("--")) {
       throw new Error(`${argument} 后需要一个值。`);
     }
-    const optionName = argument === "--article-description" ? "description" : argument.slice(2);
+    const optionName = argument === "--article-description"
+      ? "description"
+      : argument === "--update-slug" ? "updateSlug" : argument.slice(2);
     options[optionName] = value;
     index += 1;
   } else if (argument === "--help") {
-    console.log('用法: npm run article:import -- "temp/文章目录/文章.md" [--dry-run] [--slug slug] [--category 分类] [--article-description 摘要] [--pinned] [--draft]');
+    console.log('用法: npm run article:import -- "temp/文章目录/文章.md" [--dry-run] [--slug slug] [--update-slug 现有网址名] [--category 分类] [--article-description 摘要] [--pinned] [--draft]');
     process.exit(0);
   } else if (argument.startsWith("--")) {
     throw new Error(`不支持的参数：${argument}`);
@@ -204,14 +206,22 @@ async function main() {
   const title = readFrontmatterField(frontmatter, "title") || firstHeading || folderTitle;
   if (!title) throw new Error("无法确定文章标题；请在 Markdown 中添加一级标题（# 标题）。");
 
-  const requestedSlug = options.slug || slugify(title);
+  if (options.slug && options.updateSlug) {
+    throw new Error("--slug 与 --update-slug 不能同时使用。");
+  }
+  const requestedSlug = options.updateSlug || options.slug || slugify(title);
   if (!requestedSlug || !/^[\p{L}\p{N}-]+$/u.test(requestedSlug)) {
     throw new Error("slug 只能包含中文、字母、数字和连字符；请通过 --slug 指定。");
   }
 
   const titleMatches = await findArticlesByTitle(title);
   let destinationPath;
-  if (titleMatches.length === 1) {
+  if (options.updateSlug) {
+    destinationPath = path.join(blogDirectory, `${options.updateSlug}.md`);
+    if (!await fileExists(destinationPath)) {
+      throw new Error(`指定的更新目标不存在：${path.relative(projectRoot, destinationPath)}`);
+    }
+  } else if (titleMatches.length === 1) {
     destinationPath = titleMatches[0];
   } else if (titleMatches.length > 1) {
     destinationPath = options.slug
@@ -227,7 +237,7 @@ async function main() {
     destinationPath = path.join(blogDirectory, `${requestedSlug}.md`);
   }
 
-  const isUpdate = titleMatches.includes(destinationPath);
+  const isUpdate = titleMatches.includes(destinationPath) || options.updateSlug === path.basename(destinationPath, ".md");
   const existingContent = isUpdate ? await readFile(destinationPath, "utf8") : "";
   const existingFrontmatter = existingContent.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/)?.[1] ?? "";
   const slug = path.basename(destinationPath, ".md");
